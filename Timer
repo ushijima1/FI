@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健身计时器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(10, 15, 20, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            margin: 0 auto;
+        }
+        
+        .timer-display {
+            font-size: 6rem;
+            font-weight: 700;
+            margin: 20px 0;
+            letter-spacing: 3px;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .timer-info {
+            background: rgba(30, 40, 50, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .current-step {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            min-height: 48px;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            color: #7f9ead;
+        }
+        
+        .progress-info span {
+            display: inline-block;
+            min-width: 120px;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            opacity: 0.9;
+        }
+        
+        button:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-start {
+            background: linear-gradient(to right, #2C9A88, #4ecdc4);
+            color: white;
+        }
+        
+        .btn-pause {
+            background: linear-gradient(to right, #9A752C, #CDB14A);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(to right, #9A2C2C, #CD4A4A);
+            color: white;
+        }
+        
+        .action-time {
+            color: #4ecdc4;
+        }
+        
+        .rest-time {
+            color: #CDB14A;
+        }
+        
+        .time-label {
+            font-size: 0.9rem;
+            color: #7f9ead;
+            margin-top: 5px;
+        }
+        
+        .github-link {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .github-link:hover {
+            color: #4ecdc4;
+        }
+        
+        /* 状态动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            .timer-display {
+                font-size: 5rem;
+            }
+            
+            .current-step {
+                font-size: 1.4rem;
+            }
+            
+            button {
+                min-width: 120px;
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .progress-info {
+                gap: 20px;
+            }
+            
+            .progress-info span {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer-display" id="timer">45</div>
+        
+        <div class="timer-info">
+            <div class="current-step" id="current-step">准备开始训练</div>
+            <div class="progress-info">
+                <span>动作: <span id="current-exercise">1</span>/5</span>
+                <span>组数: <span id="current-set">1</span>/3</span>
+            </div>
+            <div class="time-label">
+                <span>动作时间: <span class="action-time">45秒</span></span>
+                <span>组间休息: <span class="rest-time">35秒</span></span>
+            </div>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn-start" id="startBtn">开始</button>
+            <button class="btn-pause" id="pauseBtn">暂停</button>
+            <button class="btn-reset" id="resetBtn">重置</button>
+        </div>
+    </div>
+    
+    <a href="https://github.com" class="github-link" id="githubLink">托管到GitHub Pages</a>
+
+    <script>
+        // 全局变量
+        let timerInterval;
+        let seconds = 45; // 每组动作时间
+        const WORK_TIME = 45;
+        const REST_TIME = 35;
+        let isRunning = false;
+        let isResting = false;
+        let currentSet = 1;
+        let currentExercise = 1;
+        const totalSets = 3;
+        const totalExercises = 5;
+
+        // 更新GitHub链接
+        const githubLink = document.getElementById('githubLink');
+        if (window.location.hostname !== 'github.com' && !window.location.hostname.endsWith('.github.io')) {
+            githubLink.textContent = '添加到主屏幕';
+            githubLink.href = 'javascript:addToHomeScreen()';
+        }
+
+        // 添加到主屏幕函数
+        function addToHomeScreen() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '健身计时器',
+                    text: '高效健身计时工具',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                alert('请使用手机浏览器的分享功能，选择"添加到主屏幕"');
+            }
+        }
+
+        // DOM 元素
+        const timerDisplay = document.getElementById('timer');
+        const currentStepDisplay = document.getElementById('current-step');
+        const currentExerciseDisplay = document.getElementById('current-exercise');
+        const currentSetDisplay = document.getElementById('current-set');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // 开始/暂停按钮事件
+        startBtn.addEventListener('click', function() {
+            if (!isRunning) {
+                startTimer();
+                startBtn.textContent = "继续";
+                isRunning = true;
+            }
+        });
+
+        pauseBtn.addEventListener('click', function() {
+            pauseTimer();
+        });
+
+        resetBtn.addEventListener('click', function() {
+            resetTimer();
+        });
+
+        // 计时器核心函数
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerDisplay.classList.add('pulse');
+            
+            timerInterval = setInterval(function() {
+                seconds--;
+                updateTimerDisplay();
+                
+                if (seconds === 3) {
+                    timerDisplay.classList.add('pulse');
+                    timerDisplay.style.color = isResting ? '#CD984A' : '#88D8C0';
+                    
+                    // 在最后3秒添加提示音（非github.io环境）
+                    if (!window.location.hostname.endsWith('.github.io')) {
+                        try {
+                            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                            const oscillator = audioContext.createOscillator();
+                            oscillator.type = 'sine';
+                            oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                            oscillator.connect(audioContext.destination);
+                            oscillator.start();
+                            oscillator.stop(audioContext.currentTime + 0.1);
+                        } catch (e) {
+                            console.log("无法播放提示音");
+                        }
+                    }
+                }
+                
+                if (seconds <= 0) {
+                    if (isResting) {
+                        // 休息结束
+                        isResting = false;
+                        currentSet++;
+                        if (currentSet > totalSets) {
+                            currentSet = 1;
+                            currentExercise++;
+                            if (currentExercise > totalExercises) {
+                                completeWorkout();
+                                return;
+                            }
+                        }
+                        seconds = WORK_TIME; // 新一组的开始
+                        currentStepDisplay.innerHTML = `<span class="action-time">动作 ${currentExercise} · 第${currentSet}组</span>`;
+                    } else {
+                        // 动作结束，开始休息
+                        isResting = true;
+                        seconds = REST_TIME; // 休息时间
+                        currentStepDisplay.innerHTML = `<span class="rest-time">组间休息 · 第${currentSet}组后</span>`;
+                    }
+                    
+                    updateProgressDisplay();
+                    timerDisplay.style.color = isResting ? '#CDB14A' : '#4ecdc4';
+                    timerDisplay.classList.remove('pulse');
+                    setTimeout(() => timerDisplay.classList.add('pulse'), 100);
+                }
+                
+                // 更新文档标题显示倒计时
+                document.title = `动作:${seconds}s | 健身计时器`;
+            }, 1000);
+        }
+
+        // 暂停计时器
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timerDisplay.classList.remove('pulse');
+            startBtn.textContent = "继续";
+            document.title = "已暂停 | 健身计时器";
+        }
+
+        // 重置计时器
+        function resetTimer() {
+            clearInterval(timerInterval);
+            seconds = WORK_TIME;
+            currentSet = 1;
+            currentExercise = 1;
+            isRunning = false;
+            isResting = false;
+            
+            updateTimerDisplay();
+            updateProgressDisplay();
+            currentStepDisplay.textContent = "准备开始训练";
+            timerDisplay.style.color = '#4ecdc4';
+            timerDisplay.classList.remove('pulse');
+            startBtn.textContent = "开始";
+            document.title = "健身计时器";
+        }
+
+        // 训练完成
+        function completeWorkout() {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "完成!";
+            timerDisplay.style.color = '#88D8C0';
+            currentStepDisplay.textContent = "恭喜完成全部训练！";
+            timerDisplay.classList.add('pulse');
+            isRunning = false;
+            document.title = "完成训练!";
+            
+            // 添加完成提示音
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.5);
+                
+                // 添加第二段提示音
+                setTimeout(() => {
+                    const oscillator2 = audioContext.createOscillator();
+                    oscillator2.type = 'sine';
+                    oscillator2.frequency.setValueAtTime(659.25, audioContext.currentTime);
+                    oscillator2.connect(audioContext.destination);
+                    oscillator2.start();
+                    oscillator2.stop(audioContext.currentTime + 0.5);
+                }, 600);
+            } catch (e) {
+                console.log("无法播放完成提示音");
+            }
+        }
+
+        // 更新显示
+        function updateTimerDisplay() {
+            timerDisplay.textContent = seconds;
+        }
+
+        function updateProgressDisplay() {
+            currentExerciseDisplay.textContent = currentExercise;
+            currentSetDisplay.textContent = currentSet;
+        }
+
+        // 初始化
+        updateTimerDisplay();
+        updateProgressDisplay();
+    </script>
+</body>
+</html>
