@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>健身计时器</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>健身节奏计时器 | 柔和音效版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4ECDC4;
             --primary-dark: #2C9A88;
             --action-color: #4ECDC4;
             --rest-color: #FF9A62;
-            --end-color: #FF6B6B;
+            --end-color: #88D8C0;
             --bg-gradient-start: #0a151c;
             --bg-gradient-middle: #0f2027;
             --bg-gradient-end: #142b35;
@@ -39,13 +37,31 @@
             align-items: center;
             padding: 20px;
             color: var(--text-light);
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(
+                circle, 
+                rgba(78, 205, 196, 0.1) 0%, 
+                transparent 60%
+            );
+            z-index: -1;
+            animation: rotate 45s linear infinite;
         }
         
         .container {
             background: var(--card-bg);
             border-radius: 24px;
-            box-shadow: 0 12px 40px var(--card-shadow);
+            box-shadow: 0 15px 40px var(--card-shadow);
             padding: 40px 30px;
             max-width: 480px;
             width: 100%;
@@ -54,105 +70,99 @@
             position: relative;
             overflow: hidden;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
+            z-index: 2;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--rest-color));
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
         }
         
         .timer-display {
             font-size: 6.5rem;
-            font-weight: 700;
+            font-weight: 800;
             margin: 20px 0;
             letter-spacing: -2px;
             color: var(--primary);
-            text-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
-            font-family: 'Exo 2', sans-serif;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+            font-feature-settings: "tnum";
             transition: all 0.3s ease;
-            line-height: 1;
-        }
-        
-        .timer-status {
-            font-size: 1.4rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 10px;
-            color: var(--text-secondary);
-            position: relative;
-            display: inline-block;
-        }
-        
-        .timer-status::after {
-            content: "";
-            position: absolute;
-            width: 60px;
-            height: 3px;
-            background: var(--primary);
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 2px;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
         }
         
         .timer-info {
-            background: rgba(30, 45, 55, 0.5);
-            border-radius: 18px;
-            padding: 22px 20px;
-            margin: 30px 0 25px;
+            background: rgba(30, 45, 55, 0.7);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            backdrop-filter: blur(5px);
             border: 1px solid rgba(160, 180, 189, 0.15);
         }
         
         .current-step {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 15px;
             color: var(--text-light);
-            min-height: 50px;
+            min-height: 48px;
             letter-spacing: 0.5px;
+            padding: 5px 0;
         }
         
         .progress-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 40px;
             font-size: 1.1rem;
-            margin-top: 22px;
+            margin: 20px 0 15px;
             color: var(--text-secondary);
-            max-width: 320px;
-            margin: 0 auto;
         }
         
         .progress-info span {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: inline-block;
+            min-width: 120px;
         }
         
-        .progress-info strong {
-            font-size: 1.6rem;
+        .progress-info span strong {
             color: var(--text-light);
             font-weight: 700;
-            margin-top: 6px;
+            font-size: 1.3rem;
         }
         
         .btn-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
             margin: 30px 0 15px;
+            flex-wrap: wrap;
         }
         
         button {
-            padding: 15px 5px;
+            padding: 16px 32px;
             font-size: 1.15rem;
             border: none;
             border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
+            letter-spacing: 0.5px;
             transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            min-width: 140px;
             color: white;
             position: relative;
             overflow: hidden;
-            letter-spacing: 0.5px;
-            box-shadow: 0 6px 15px rgba(0, 15, 30, 0.4);
-            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 6px 18px rgba(0, 10, 20, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 2;
         }
         
         button::after {
@@ -162,23 +172,24 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.15), transparent);
-            opacity: 0.7;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0.4;
             transition: opacity 0.3s;
+            z-index: -1;
         }
         
         button:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 10, 20, 0.5);
+            box-shadow: 0 10px 22px rgba(0, 15, 25, 0.45);
         }
         
         button:hover::after {
-            opacity: 0.9;
+            opacity: 0.6;
         }
         
         button:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 10px rgba(0, 10, 20, 0.4);
+            transform: translateY(1px);
+            box-shadow: 0 3px 12px rgba(0, 10, 20, 0.3);
         }
         
         .btn-start {
@@ -193,102 +204,118 @@
             background: linear-gradient(135deg, #F4717F, #D75A6A);
         }
         
-        .time-settings {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-        
-        .time-settings span {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .time-value {
-            font-size: 1.1rem;
+        .action-time {
+            color: var(--primary);
             font-weight: 600;
-            color: var(--text-light);
-            margin-top: 5px;
         }
         
-        .pulse {
-            animation: pulse 0.8s infinite;
+        .rest-time {
+            color: var(--rest-color);
+            font-weight: 600;
         }
         
-        .sound-bar {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin-top: 30px;
-        }
-        
-        .sound-dot {
-            width: 10px;
-            height: 10px;
+        .rhythm-pulse {
+            position: absolute;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.3;
-            transition: transform 0.3s, opacity 0.3s;
-        }
-        
-        .active-dot {
-            opacity: 1;
-            transform: scale(1.3);
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); text-shadow: 0 0 20px rgba(78, 205, 196, 0.6); }
-            100% { transform: scale(1); }
-        }
-        
-        /* 节拍动画效果 */
-        .beat-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            border-radius: 24px;
-            overflow: hidden;
-        }
-        
-        .beat-pulse {
-            position: absolute;
+            background: rgba(78, 205, 196, 0.1);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(78, 205, 196, 0.1);
+            z-index: -1;
             opacity: 0;
         }
         
-        .beat-pulse.active {
-            animation: beatPulse 1s forwards;
-        }
-        
-        @keyframes beatPulse {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 0.5;
+        /* 状态动画 */
+        @keyframes pulse {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.6);
+                opacity: 1; 
             }
-            50% {
-                opacity: 0.3;
-            }
-            100% {
-                width: 600px;
-                height: 600px;
+            100% { 
+                transform: translate(-50%, -50%) scale(1.3); 
                 opacity: 0;
             }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sound-settings {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(30, 45, 55, 0.5);
+            border-radius: 14px;
+        }
+        
+        .sound-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .sound-toggle {
+            position: relative;
+            width: 45px;
+            height: 24px;
+            background: rgba(160, 180, 189, 0.3);
+            border-radius: 12px;
+            display: inline-block;
+            cursor: pointer;
+            vertical-align: middle;
+            margin: 0 8px;
+        }
+        
+        .sound-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .sound-toggle.on {
+            background: var(--primary);
+        }
+        
+        .sound-toggle.on::after {
+            left: calc(100% - 22px);
+        }
+        
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 70%;
+            height: 6px;
+            background: rgba(160, 180, 189, 0.3);
+            border-radius: 3px;
+            outline: none;
+            margin-top: 10px;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(78, 205, 196, 0.8);
         }
         
         @media (max-width: 500px) {
@@ -298,7 +325,7 @@
             }
             
             .timer-display {
-                font-size: 5.5rem;
+                font-size: 5rem;
             }
             
             .btn-container {
@@ -306,13 +333,19 @@
             }
             
             button {
-                padding: 13px 5px;
-                font-size: 1rem;
+                min-width: 120px;
+                padding: 14px 5px;
+                font-size: 1.05rem;
+                gap: 8px;
             }
             
             .progress-info {
+                gap: 20px;
                 flex-direction: column;
-                gap: 18px;
+            }
+            
+            .progress-info span {
+                min-width: auto;
             }
             
             .current-step {
@@ -320,76 +353,98 @@
             }
         }
         
-        /* 声音波动画 */
-        .sound-wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            overflow: hidden;
-            opacity: 0.7;
+        /* 声音波形指示器 */
+        .sound-wave-display {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            height: 30px;
+            margin: 15px auto;
+            max-width: 280px;
         }
         
-        .wave-bar {
-            position: absolute;
-            bottom: 0;
-            width: 6px;
+        .wave-bar-display {
+            width: 5px;
+            height: 5px;
             background: var(--primary);
-            border-radius: 3px 3px 0 0;
-            animation: waveAnimation 1s infinite;
-            transform-origin: bottom;
+            border-radius: 3px;
+            transition: height 0.2s ease;
         }
         
-        @keyframes waveAnimation {
-            0% {
-                transform: scaleY(0.1);
+        /* 音量指示器 */
+        .volume-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(78, 205, 196, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+        }
+        
+        /* 柔和动画效果 */
+        .soft-pulse {
+            animation: softPulse 1.2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes softPulse {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0.7; 
             }
-            50% {
-                transform: scaleY(1);
-            }
-            100% {
-                transform: scaleY(0.1);
+            100% { 
+                transform: translate(-50%, -50%) scale(1.2); 
+                opacity: 0.4;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="beat-animation" id="beatAnimation"></div>
-        <div class="sound-wave" id="soundWave"></div>
+        <div class="rhythm-pulse" id="rhythmPulse"></div>
+        <div class="volume-indicator">
+            <i class="fas fa-volume-down"></i>
+        </div>
         
         <div class="timer-display" id="timer">45</div>
-        <div class="timer-status" id="timerStatus">动作</div>
         
         <div class="timer-info">
             <div class="current-step" id="current-step">准备开始训练</div>
-            
             <div class="progress-info">
-                <span>动作
-                    <strong id="current-exercise">1</strong>/5
-                </span>
-                <span>组数
-                    <strong id="current-set">1</strong>/3
-                </span>
+                <span>动作: <strong id="current-exercise">1</strong>/5</span>
+                <span>组数: <strong id="current-set">1</strong>/3</span>
             </div>
             
-            <div class="sound-bar" id="soundBar"></div>
+            <div class="sound-wave-display" id="soundWaveDisplay">
+                <!-- 由JS动态生成 -->
+            </div>
         </div>
         
         <div class="btn-container">
-            <button class="btn-start" id="startBtn">开始</button>
-            <button class="btn-pause" id="pauseBtn">暂停</button>
-            <button class="btn-reset" id="resetBtn">重置</button>
+            <button class="btn-start" id="startBtn">
+                <i class="fas fa-play"></i> 开始
+            </button>
+            <button class="btn-pause" id="pauseBtn">
+                <i class="fas fa-pause"></i> 暂停
+            </button>
+            <button class="btn-reset" id="resetBtn">
+                <i class="fas fa-rotate-left"></i> 重置
+            </button>
         </div>
         
-        <div class="time-settings">
-            <span>动作时间
-                <div class="time-value">45秒</div>
-            </span>
-            <span>组间休息
-                <div class="time-value">35秒</div>
-            </span>
+        <div class="sound-settings">
+            <div class="sound-label">
+                <i class="fas fa-volume-high"></i>
+                声音设置
+                <div class="sound-toggle on" id="soundToggle"></div>
+            </div>
+            <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider">
         </div>
     </div>
 
@@ -406,107 +461,109 @@
         const totalSets = 3;
         const totalExercises = 5;
         let audioContext;
-        let beatCounter = 0;
+        let lastPlayedSecond = -1;
+        let isSoundEnabled = true;
+        let soundVolume = 0.5; // 默认中等音量
 
         // DOM 元素
         const timerDisplay = document.getElementById('timer');
-        const timerStatus = document.getElementById('timerStatus');
         const currentStepDisplay = document.getElementById('current-step');
         const currentExerciseDisplay = document.getElementById('current-exercise');
         const currentSetDisplay = document.getElementById('current-set');
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
-        const soundBar = document.getElementById('soundBar');
-        const beatAnimation = document.getElementById('beatAnimation');
-        const soundWave = document.getElementById('soundWave');
+        const rhythmPulse = document.getElementById('rhythmPulse');
+        const soundToggle = document.getElementById('soundToggle');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const soundWaveDisplay = document.getElementById('soundWaveDisplay');
 
-        // 创建动态声音点
-        for (let i = 0; i < 12; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'sound-dot';
-            soundBar.appendChild(dot);
+        // 创建声音波形显示器
+        function createWaveDisplay() {
+            soundWaveDisplay.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar-display';
+                bar.style.height = Math.floor(Math.random() * 20) + 5 + 'px';
+                bar.style.transitionDelay = (i * 0.02) + 's';
+                soundWaveDisplay.appendChild(bar);
+            }
         }
-        const soundDots = Array.from(document.querySelectorAll('.sound-dot'));
 
-        // 创建波浪效果
-        for (let i = 0; i < 30; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'wave-bar';
-            bar.style.left = `${i * 12}px`;
-            bar.style.animationDelay = `${i * 0.05}s`;
-            bar.style.height = '8px';
-            soundWave.appendChild(bar);
-        }
+        createWaveDisplay();
 
         // 初始化音频系统
         function initAudioSystem() {
             try {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContextClass();
+                
+                // 解锁iOS音频
+                const unlock = () => {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                };
+                
+                document.addEventListener('click', unlock, { once: true });
             } catch (e) {
                 console.log("音频系统初始化失败");
+                isSoundEnabled = false;
+                soundToggle.classList.remove('on');
             }
         }
 
-        // 播放节拍声音
-        function playBeatSound(frequency, duration) {
-            if (!audioContext) return;
+        // 播放柔和的"砰"声音效
+        function playSoftTone(frequency, duration) {
+            if (!isSoundEnabled || !audioContext) return;
             
             try {
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 
+                // 使用正弦波创造更柔和的音效
                 oscillator.type = 'sine';
+                // 使用更低频率 (200-300Hz范围)
                 oscillator.frequency.value = frequency;
-                gainNode.gain.value = 0.2;
+                
+                // 更平缓的音量包络
+                const now = audioContext.currentTime;
+                gainNode.gain.setValueAtTime(0.001, now);
+                gainNode.gain.exponentialRampToValueAtTime(soundVolume * 0.4, now + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
                 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
                 oscillator.start();
-                oscillator.stop(audioContext.currentTime + duration);
+                oscillator.stop(now + duration);
                 
-                // 创建节奏动画
-                createBeatAnimation();
+                // 更新声音波形显示
+                updateWaveDisplay();
             } catch (e) {
                 console.log("声音播放失败:", e);
             }
         }
 
-        // 创建节拍动画
-        function createBeatAnimation() {
-            const pulse = document.createElement('div');
-            pulse.className = 'beat-pulse';
-            
-            if (isResting) {
-                pulse.style.background = 'rgba(255, 154, 98, 0.1)';
-            } else {
-                pulse.style.background = 'rgba(78, 205, 196, 0.1)';
-            }
-            
-            beatAnimation.appendChild(pulse);
-            
-            setTimeout(() => {
-                pulse.classList.add('active');
-            }, 10);
-            
-            setTimeout(() => {
-                pulse.remove();
-            }, 1200);
+        // 更新声音波形显示
+        function updateWaveDisplay() {
+            const bars = soundWaveDisplay.querySelectorAll('.wave-bar-display');
+            bars.forEach(bar => {
+                const newHeight = Math.floor(Math.random() * 25) + 5;
+                bar.style.height = newHeight + 'px';
+            });
         }
 
-        // 更新声音点动画
-        function updateSoundDots() {
-            soundDots.forEach((dot, i) => {
-                if (i === beatCounter % 12) {
-                    dot.classList.add('active-dot');
-                } else {
-                    dot.classList.remove('active-dot');
-                }
-            });
+        // 创建视觉反馈
+        function createVisualFeedback(frequency) {
+            rhythmPulse.style.opacity = '0.7';
+            rhythmPulse.style.backgroundColor = seconds > 3 
+                ? 'rgba(78, 205, 196, 0.15)' 
+                : 'rgba(255, 154, 98, 0.1)';
             
-            beatCounter++;
+            rhythmPulse.style.animation = 'none';
+            rhythmPulse.offsetHeight; // 触发重绘
+            rhythmPulse.style.animation = 'softPulse 0.8s ease';
         }
 
         // 开始/暂停按钮事件
@@ -518,7 +575,7 @@
                 }
                 
                 startTimer();
-                startBtn.textContent = "继续";
+                startBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
                 isRunning = true;
             }
         });
@@ -531,34 +588,59 @@
             resetTimer();
         });
 
+        // 声音开关控制
+        soundToggle.addEventListener('click', function() {
+            isSoundEnabled = !isSoundEnabled;
+            this.classList.toggle('on');
+            
+            // 提供即时反馈（更柔和的音效）
+            if (isSoundEnabled && audioContext) {
+                playSoftTone(200, 0.1);
+            }
+        });
+
+        // 音量控制
+        volumeSlider.addEventListener('input', function() {
+            soundVolume = this.value / 100;
+            // 提供即时反馈
+            if (isSoundEnabled && audioContext) {
+                playSoftTone(250, 0.1);
+            }
+        });
+
         // 计时器核心函数
         function startTimer() {
             clearInterval(timerInterval);
-            timerDisplay.classList.add('pulse');
+            timerDisplay.classList.add('soft-pulse');
             
             // 第一秒立即播放声音
-            playBeatSound(440, 0.08);
-            updateSoundDots();
+            if (isSoundEnabled) {
+                playSoftTone(220, 0.1);
+            }
             
             timerInterval = setInterval(function() {
                 seconds--;
                 updateTimerDisplay();
                 
-                // 播放每秒节拍
-                playBeatSound(440, 0.08);
-                updateSoundDots();
-                
-                // 最后三秒特殊声音
-                if (seconds === 3) {
-                    playBeatSound(660, 0.1);
-                    timerDisplay.classList.add('pulse');
-                    timerDisplay.style.color = '#FF9A62';
-                    timerStatus.style.color = '#FF9A62';
+                // 播放每秒声音
+                if (isSoundEnabled) {
+                    // 使用更低频率（200-250Hz范围）
+                    const baseFreq = 220 + Math.random() * 30; // 轻微变化更自然
+                    
+                    // 最后三秒更明显的提示音
+                    if (seconds <= 3 && seconds > 0) {
+                        playSoftTone(260, 0.15); // 稍高的频率但仍然是低频
+                    } else {
+                        playSoftTone(baseFreq, 0.1);
+                    }
                 }
                 
                 if (seconds <= 0) {
-                    // 播放阶段结束音效
-                    playBeatSound(784, 0.3);
+                    // 播放阶段结束音效（更柔和的钟声效果）
+                    if (isSoundEnabled) {
+                        playSoftTone(180, 0.2);
+                        setTimeout(() => playSoftTone(220, 0.2), 150);
+                    }
                     
                     if (isResting) {
                         // 休息结束
@@ -573,29 +655,23 @@
                             }
                         }
                         seconds = WORK_TIME;
-                        timerStatus.textContent = "动作";
                         currentStepDisplay.innerHTML = `<span class="action-time">动作 ${currentExercise} · 第${currentSet}组</span>`;
                     } else {
                         // 动作结束，开始休息
                         isResting = true;
                         seconds = REST_TIME;
-                        timerStatus.textContent = "休息";
                         currentStepDisplay.innerHTML = `<span class="rest-time">组间休息 · 第${currentSet}组后</span>`;
                     }
                     
                     updateProgressDisplay();
                     timerDisplay.style.color = isResting ? '#FF9A62' : '#4ecdc4';
-                    timerDisplay.classList.remove('pulse');
-                    setTimeout(() => timerDisplay.classList.add('pulse'), 100);
+                    timerDisplay.classList.remove('soft-pulse');
+                    setTimeout(() => timerDisplay.classList.add('soft-pulse'), 100);
                     
                     // 新阶段第一秒立即播放声音
-                    playBeatSound(440, 0.08);
-                    updateSoundDots();
-                }
-                
-                // 重置声音点动画
-                if (seconds === WORK_TIME || seconds === REST_TIME) {
-                    beatCounter = 0;
+                    if (isSoundEnabled && seconds > 0) {
+                        playSoftTone(240, 0.1);
+                    }
                 }
             }, 1000);
         }
@@ -604,11 +680,9 @@
         function pauseTimer() {
             clearInterval(timerInterval);
             isRunning = false;
-            timerDisplay.classList.remove('pulse');
-            startBtn.textContent = "继续";
+            timerDisplay.classList.remove('soft-pulse');
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
             timerDisplay.style.color = '#4ecdc4';
-            timerStatus.style.color = '#A0B4BD';
-            soundDots.forEach(dot => dot.classList.remove('active-dot'));
         }
 
         // 重置计时器
@@ -619,17 +693,13 @@
             currentExercise = 1;
             isRunning = false;
             isResting = false;
-            beatCounter = 0;
             
             updateTimerDisplay();
             updateProgressDisplay();
-            timerStatus.textContent = "动作";
-            timerStatus.style.color = '#A0B4BD';
             currentStepDisplay.textContent = "准备开始训练";
             timerDisplay.style.color = '#4ecdc4';
-            timerDisplay.classList.remove('pulse');
-            startBtn.textContent = "开始";
-            soundDots.forEach(dot => dot.classList.remove('active-dot'));
+            timerDisplay.classList.remove('soft-pulse');
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 开始';
         }
 
         // 训练完成
@@ -637,17 +707,15 @@
             clearInterval(timerInterval);
             timerDisplay.textContent = "完成!";
             timerDisplay.style.color = '#88D8C0';
-            timerStatus.style.color = '#88D8C0';
-            timerStatus.textContent = "完成";
             currentStepDisplay.textContent = "恭喜完成全部训练！";
-            timerDisplay.classList.add('pulse');
+            timerDisplay.classList.add('soft-pulse');
             isRunning = false;
             
-            // 播放完成音效
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    playBeatSound(523 + (i * 100), 0.2);
-                }, i * 300);
+            // 播放完成音效（更柔和的旋律）
+            if (isSoundEnabled) {
+                playSoftTone(180, 0.3);
+                setTimeout(() => playSoftTone(220, 0.3), 300);
+                setTimeout(() => playSoftTone(260, 0.3), 600);
             }
         }
 
@@ -664,9 +732,6 @@
         // 初始化
         updateTimerDisplay();
         updateProgressDisplay();
-        
-        // 初始声音点设置
-        soundDots.forEach(dot => dot.classList.remove('active-dot'));
     </script>
 </body>
 </html>
